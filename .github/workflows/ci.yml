@@ -3,30 +3,29 @@ name: Deploy to AWS S3
 on:
   push:
     branches:
-      - main  # change to your main branch if different
+      - main  # or 'master' if you're using that
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js (optional if you use React)
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install and build (if applicable)
+      - name: Install dependencies and build
         run: |
-          cd tp  # 👈 important: go into the right folder
           if [ -f package.json ]; then
             npm install
             npm run build
           fi
 
-      - name: Deploy to S3
+      - name: Deploy to AWS S3
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --acl public-read --delete
@@ -35,4 +34,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          SOURCE_DIR: tp/build  # 👈 change to `tp` if it's just HTML/CSS/JS, or `tp/build` if it's React
+          SOURCE_DIR: build  # if using React/Vite/etc., change to "." for plain HTML
