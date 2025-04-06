@@ -22,4 +22,5 @@ jobs:
         run: |
           aws s3 sync . s3://$AWS_BUCKET_NAME/ --delete \
             --exclude ".git/*" \
-            --exclude ".github/*"
+            --exclude ".github/*" \
+            --acl public-read
