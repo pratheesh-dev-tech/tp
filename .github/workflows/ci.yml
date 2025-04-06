@@ -1,36 +1,33 @@
-name: Deploy React App to S3
+name: Deploy to AWS S3
 
 on:
   push:
     branches:
-      - main  # Change if your default branch is something else (e.g., master)
+      - main  # or your default branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: 🧰 Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      # Optional: Install dependencies and build (only if React/Node)
+      - name: Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm install
+            npm run build
+          fi
 
-    - name: 📦 Install dependencies
-      run: npm install
-
-    - name: 🛠️ Build project
-      run: npm run build
-
-    - name: 🚀 Deploy to S3
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-        AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-      run: |
-        aws s3 cp ./build s3://$AWS_BUCKET_NAME/ --recursive \
-          --exclude ".git/*" \
-          --exclude ".github/*"
+      - name: Upload to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: build  # use 'build' if React, '.' if plain HTML/CSS/JS
