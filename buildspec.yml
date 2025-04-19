@@ -1,4 +1,20 @@
+version: 0.2
+
 phases:
+  install:
+    runtime-versions:
+      nodejs: 18 # Optional: only if using npm or node
+    commands:
+      - echo Installing dependencies...
+      # - npm install   # Uncomment if using Node.js packages
+
   build:
     commands:
-      - ls
+      - echo Build started on `date`
+      - ls -la          # List all files (verifies contents)
+      # Add build command here if needed (e.g., npm run build)
+
+artifacts:
+  files:
+    - '**/*'           # Include all files for upload
+  discard-paths: yes   # Flatten the directory if needed
